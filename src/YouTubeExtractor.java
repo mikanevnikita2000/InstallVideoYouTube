@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -124,7 +125,8 @@ public class YouTubeExtractor {
     private void getStreamUrls(String videoID) throws IOException, InterruptedException, JSONException
     {
         String pageHtml;
-
+        HashMap<Object, Object> encSignatures = new HashMap<>();
+        HashMap<Object, Object> ytFiles = new HashMap<>();
         BufferedReader reader = null;
         HttpURLConnection urlConnection = null;
         URL getUrl = new URL("https://youtube.com/watch?v=" + videoID);
@@ -169,22 +171,22 @@ public class YouTubeExtractor {
                 int itag = format.getInt("itag");
                 System.out.println("itag: " + itag);
                 System.out.println("FORMAT_MAP.get(itag)" + FORMAT_MAP.get(itag));
-//                if (FORMAT_MAP.get(itag) != null) {
-//                    if (format.has("url")) {
-//                        String url = format.getString("url").replace("\\u0026", "&");
-//                        ytFiles.append(itag, new YtFile(FORMAT_MAP.get(itag), url));
-//                    } else if (format.has("signatureCipher")) {
-//
-//                        mat = patSigEncUrl.matcher(format.getString("signatureCipher"));
-//                        Matcher matSig = patSignature.matcher(format.getString("signatureCipher"));
-//                        if (mat.find() && matSig.find()) {
-//                            String url = URLDecoder.decode(mat.group(1), "UTF-8");
-//                            String signature = URLDecoder.decode(matSig.group(1), "UTF-8");
-//                            ytFiles.append(itag, new YtFile(FORMAT_MAP.get(itag), url));
-//                            encSignatures.append(itag, signature);
-//                        }
-//                    }
-//                }
+                if (FORMAT_MAP.get(itag) != null) {
+                    if (format.has("url")) {
+                        String url = format.getString("url").replace("\\u0026", "&");
+                        ytFiles.put(itag, new YtFile(FORMAT_MAP.get(itag), url));
+                    } else if (format.has("signatureCipher")) {
+
+                        mat = patSigEncUrl.matcher(format.getString("signatureCipher"));
+                        Matcher matSig = patSignature.matcher(format.getString("signatureCipher"));
+                        if (mat.find() && matSig.find()) {
+                            String url = URLDecoder.decode(mat.group(1), "UTF-8");
+                            String signature = URLDecoder.decode(matSig.group(1), "UTF-8");
+                            ytFiles.put(itag, new YtFile(FORMAT_MAP.get(itag), url));
+                            encSignatures.put(itag, signature);
+                        }
+                    }
+                }
             }
         }
     }
