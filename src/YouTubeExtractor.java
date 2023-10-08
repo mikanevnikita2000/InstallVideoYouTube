@@ -8,7 +8,10 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -112,7 +115,7 @@ public class YouTubeExtractor {
         }
         if (videoID != null) {
             try {
-                System.out.println("videoID: " + videoID);
+                //System.out.println("videoID: " + videoID);
                 getStreamUrls(videoID);
             } catch (Exception e) {
                 //Log.e(LOG_TAG, "Extraction failed", e);
@@ -151,8 +154,11 @@ public class YouTubeExtractor {
                 urlConnection.disconnect();
             }
         }
+
+        System.out.println("Выбирите формат: ");
+        List<Integer> heightVideo = new ArrayList<>();
+
         Matcher mat = patPlayerResponse.matcher(pageHtml);
-        System.out.println("mat.find(): " + mat.find());
         if (mat.find()) {
             JSONObject ytPlayerResponse = new JSONObject(mat.group(1));
             JSONObject streamingData = ytPlayerResponse.getJSONObject("streamingData");
@@ -164,15 +170,17 @@ public class YouTubeExtractor {
 
 
                 String type = format.optString("type");
-                System.out.println("type: " + type);
+                //System.out.println("type: " + type);
                 if (type != null && type.equals("FORMAT_STREAM_TYPE_OTF"))
                     continue;
 
                 int itag = format.getInt("itag");
-                System.out.println("itag: " + itag);
-                System.out.println("FORMAT_MAP.get(itag)" + FORMAT_MAP.get(itag));
+                //System.out.println("itag: " + itag);
+                //System.out.println("FORMAT_MAP.get(itag): " + FORMAT_MAP.get(itag));
+                heightVideo.add(FORMAT_MAP.get(itag).getHeight());
                 if (FORMAT_MAP.get(itag) != null) {
                     if (format.has("url")) {
+
                         String url = format.getString("url").replace("\\u0026", "&");
                         ytFiles.put(itag, new YtFile(FORMAT_MAP.get(itag), url));
                     } else if (format.has("signatureCipher")) {
@@ -187,6 +195,65 @@ public class YouTubeExtractor {
                         }
                     }
                 }
+            }
+
+            JSONArray adaptiveFormats = streamingData.getJSONArray("adaptiveFormats");
+            for (int i = 0; i < adaptiveFormats.length(); i++) {
+
+                JSONObject adaptiveFormat = adaptiveFormats.getJSONObject(i);
+
+                String type = adaptiveFormat.optString("type");
+                if (type != null && type.equals("FORMAT_STREAM_TYPE_OTF"))
+                    continue;
+
+                int itag = adaptiveFormat.getInt("itag");
+
+                if (FORMAT_MAP.get(itag) != null) {
+                    if (adaptiveFormat.has("url")) {
+                        String url = adaptiveFormat.getString("url").replace("\\u0026", "&");
+                        ytFiles.put(itag, new YtFile(FORMAT_MAP.get(itag), url));
+                    } else if (adaptiveFormat.has("signatureCipher")) {
+
+                        mat = patSigEncUrl.matcher(adaptiveFormat.getString("signatureCipher"));
+                        Matcher matSig = patSignature.matcher(adaptiveFormat.getString("signatureCipher"));
+                        if (mat.find() && matSig.find()) {
+                            String url = URLDecoder.decode(mat.group(1), "UTF-8");
+                            String signature = URLDecoder.decode(matSig.group(1), "UTF-8");
+                            ytFiles.put(itag, new YtFile(FORMAT_MAP.get(itag), url));
+                            encSignatures.put(itag, signature);
+                        }
+                    }
+                }
+                System.out.println(adaptiveFormats);
+            }
+            JSONObject videoDetails = ytPlayerResponse.getJSONObject("videoDetails");
+            this.videoMeta = new VideoMeta(videoDetails.getString("videoId"),
+                    videoDetails.getString("title"),
+                    videoDetails.getString("author"),
+                    videoDetails.getString("channelId"),
+                    Long.parseLong(videoDetails.getString("lengthSeconds")),
+                    Long.parseLong(videoDetails.getString("viewCount")),
+                    videoDetails.getBoolean("isLiveContent"),
+                    videoDetails.getString("shortDescription"));
+
+        }
+        boolean formatSelected = false;
+        Scanner sc = new Scanner(System.in);
+        while (formatSelected == false){
+            for (int i = 0; i < heightVideo.size(); i++){
+                System.out.println(heightVideo.get(i));
+            }
+
+            int format = Integer.parseInt(sc.next());
+            for(int i = 0; i < heightVideo.size(); i++){
+                if (format == heightVideo.get(i)){
+                    formatSelected = true;
+                    System.out.println("Вы выбрали формат: " + format);
+                    break;
+                }
+            }
+            if (formatSelected == false){
+                System.out.println("Не верный формат. Выбирете нужный.");
             }
         }
     }
