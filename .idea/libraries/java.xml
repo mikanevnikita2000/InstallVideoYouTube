@@ -3,8 +3,8 @@
     <CLASSES />
     <JAVADOC />
     <SOURCES>
-      <root url="file://$PROJECT_DIR$/vget-master/src/main/java" />
-      <root url="file://$PROJECT_DIR$/vget-master/src/test/java" />
+      <root url="jar://$PROJECT_DIR$/uri-master.zip!/uri-master/src/main/java" />
+      <root url="jar://$PROJECT_DIR$/uri-master.zip!/uri-master/src/main/test" />
     </SOURCES>
   </library>
 </component>

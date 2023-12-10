@@ -11,7 +11,6 @@ import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -115,7 +114,7 @@ public class YouTubeExtractor {
         }
         if (videoID != null) {
             try {
-                //System.out.println("videoID: " + videoID);
+                System.out.println("videoID: " + videoID);
                 getStreamUrls(videoID);
             } catch (Exception e) {
                 //Log.e(LOG_TAG, "Extraction failed", e);
@@ -128,12 +127,14 @@ public class YouTubeExtractor {
     private void getStreamUrls(String videoID) throws IOException, InterruptedException, JSONException
     {
         String pageHtml;
+        YtFile ytFile = null;
         HashMap<Object, Object> encSignatures = new HashMap<>();
         HashMap<Object, Object> ytFiles = new HashMap<>();
         BufferedReader reader = null;
         HttpURLConnection urlConnection = null;
         URL getUrl = new URL("https://youtube.com/watch?v=" + videoID);
         //Log.i(LOG_TAG, "getUrl " + String.valueOf(getUrl));
+        System.out.println("getUrl: \n" + getUrl);
         try {
             urlConnection = (HttpURLConnection) getUrl.openConnection();
             urlConnection.setRequestProperty("User-Agent", USER_AGENT);
@@ -175,7 +176,7 @@ public class YouTubeExtractor {
                     continue;
 
                 int itag = format.getInt("itag");
-                //System.out.println("itag: " + itag);
+                System.out.println("itag: " + itag);
                 //System.out.println("FORMAT_MAP.get(itag): " + FORMAT_MAP.get(itag));
                 heightVideo.add(FORMAT_MAP.get(itag).getHeight());
                 if (FORMAT_MAP.get(itag) != null) {
@@ -191,13 +192,16 @@ public class YouTubeExtractor {
                             String url = URLDecoder.decode(mat.group(1), "UTF-8");
                             String signature = URLDecoder.decode(matSig.group(1), "UTF-8");
                             ytFiles.put(itag, new YtFile(FORMAT_MAP.get(itag), url));
+                            //System.out.println("url ytFiles1" + ytFile.toString());
                             encSignatures.put(itag, signature);
                         }
+
                     }
                 }
             }
 
             JSONArray adaptiveFormats = streamingData.getJSONArray("adaptiveFormats");
+            //System.out.println("adaptiveFormats: " + adaptiveFormats);
             for (int i = 0; i < adaptiveFormats.length(); i++) {
 
                 JSONObject adaptiveFormat = adaptiveFormats.getJSONObject(i);
@@ -220,41 +224,114 @@ public class YouTubeExtractor {
                             String url = URLDecoder.decode(mat.group(1), "UTF-8");
                             String signature = URLDecoder.decode(matSig.group(1), "UTF-8");
                             ytFiles.put(itag, new YtFile(FORMAT_MAP.get(itag), url));
+                            //System.out.println("url ytFiles2" + ytFile.toString());
                             encSignatures.put(itag, signature);
                         }
                     }
                 }
                 System.out.println(adaptiveFormats);
             }
-            JSONObject videoDetails = ytPlayerResponse.getJSONObject("videoDetails");
-            this.videoMeta = new VideoMeta(videoDetails.getString("videoId"),
-                    videoDetails.getString("title"),
-                    videoDetails.getString("author"),
-                    videoDetails.getString("channelId"),
-                    Long.parseLong(videoDetails.getString("lengthSeconds")),
-                    Long.parseLong(videoDetails.getString("viewCount")),
-                    videoDetails.getBoolean("isLiveContent"),
-                    videoDetails.getString("shortDescription"));
 
         }
-        boolean formatSelected = false;
-        Scanner sc = new Scanner(System.in);
-        while (formatSelected == false){
-            for (int i = 0; i < heightVideo.size(); i++){
-                System.out.println(heightVideo.get(i));
-            }
 
-            int format = Integer.parseInt(sc.next());
-            for(int i = 0; i < heightVideo.size(); i++){
-                if (format == heightVideo.get(i)){
-                    formatSelected = true;
-                    System.out.println("Вы выбрали формат: " + format);
-                    break;
-                }
-            }
-            if (formatSelected == false){
-                System.out.println("Не верный формат. Выбирете нужный.");
-            }
-        }
+    }
+
+
+
+//    boolean formatSelected = false;
+//    Scanner sc = new Scanner(System.in);
+//        while (formatSelected == false){
+//        for (int i = 0; i < heightVideo.size(); i++){
+//            System.out.println(heightVideo.get(i));
+//        }
+//
+//        int format = Integer.parseInt(sc.next());
+//        for(int i = 0; i < heightVideo.size(); i++){
+//            if (format == heightVideo.get(i)){
+//                formatSelected = true;
+//                System.out.println("Вы выбрали формат: " + format);
+//
+//
+//
+//                YtFile ytFile = new YtFile(format, url);
+//
+//
+//                break;
+//            }
+//        }
+//        if (formatSelected == false){
+//            System.out.println("Не верный формат. Выбирете нужный.");
+//        }
+
+
+
+
+
+
+//    List<Integer> itag = new ArrayList<>();
+//    JSONObject ytPlayerResponse = new JSONObject(mat.group(1));
+//    JSONObject streamingData = ytPlayerResponse.getJSONObject("streamingData");
+//    JSONArray adaptiveFormats = streamingData.getJSONArray("adaptiveFormats");
+//                    for (int i = 0; i < adaptiveFormats.length(); i++){
+//        itag.add(FORMAT_MAP.)
+//    }
+//
+//                    for (int i = 0; i < FORMAT_MAP.size(); i++){
+//
+//        if (format == FORMAT_MAP.get(i))
+//
+//    }
+
+
+
+//    private void addButtonToMainLayout(final String videoTitle, final YtFragmentedVideo ytFrVideo){
+//        String btnText;
+//        if (ytFrVideo.height == -1)
+//            btnText = "Audio " + ytFrVideo.audioFile.getFormat().getAudioBitrate() + " kbit/s";
+//        else
+//            btnText = (ytFrVideo.videoFile.getFormat().getFps() == 60) ? ytFrVideo.height + "p60" :
+//                    ytFrVideo.height + "p";
+//        String filename;
+//        if (videoTitle.length() > 55) {
+//            filename = videoTitle.substring(0, 55);
+//        } else {
+//            filename = videoTitle;
+//        }
+//        filename = filename.replaceAll("[\\\\><\"|*?%:#/]", "");
+//        filename += (ytFrVideo.height == -1) ? "" : "-" + ytFrVideo.height + "p";
+//        String downloadIds = "";
+//        boolean hideAudioDownloadNotification = false;
+//        if (ytFrVideo.videoFile != null) {
+//            downloadIds += downloadFromUrl(ytFrVideo.videoFile.getUrl(), videoTitle,
+//                    filename + "." + ytFrVideo.videoFile.getFormat().getExt(), false);
+//            downloadIds += "-";
+//            hideAudioDownloadNotification = true;
+//        }
+//        if (ytFrVideo.audioFile != null) {
+//            downloadIds += downloadFromUrl(ytFrVideo.audioFile.getUrl(), videoTitle,
+//                    filename + "." + ytFrVideo.audioFile.getFormat().getExt(), hideAudioDownloadNotification);
+//        }
+//    }
+
+//    private long downloadFromUrl(String youtubeDlUrl, String downloadTitle, String fileName, boolean hide) {
+//        Uri uri = Uri.parse(youtubeDlUrl);
+//        DownloadManager.Request request = new DownloadManager.Request(uri);
+//        request.setTitle(downloadTitle);
+//        if (hide) {
+//            request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_HIDDEN);
+//            request.setVisibleInDownloadsUi(false);
+//        } else
+//            request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+//
+//        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName);
+//
+//        DownloadManager manager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
+//        return manager.enqueue(request);
+//    }
+
+    private static class YtFragmentedVideo {
+        int height;
+        YtFile audioFile;
+        YtFile videoFile;
     }
 }
