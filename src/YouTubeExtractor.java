@@ -231,10 +231,40 @@ public class YouTubeExtractor {
                 }
                 System.out.println(adaptiveFormats);
             }
+            JSONObject videoDetails = ytPlayerResponse.getJSONObject("videoDetails");
+            addButtonToMainLayout(videoDetails.getString("title"), videoDetails);
 
         }
 
+
     }
+    private void addButtonToMainLayout(String videoTitle, YtFragmentedVideo ytFrVideo){
+        String btnText;
+        if (ytFrVideo.height == -1)
+            btnText = "Audio " + ytFrVideo.audioFile.getFormat().getAudioBitrate() + " kbit/s";
+        else
+            btnText = (ytFrVideo.videoFile.getFormat().getFps() == 60) ? ytFrVideo.height + "p60" :
+                    ytFrVideo.height + "p";
+        String filename;
+        if (videoTitle.length() > 55) {
+            filename = videoTitle.substring(0, 55);
+        } else {
+            filename = videoTitle;
+        }
+        filename = filename.replaceAll("[\\\\><\"|*?%:#/]", "");
+        filename += (ytFrVideo.height == -1) ? "" : "-" + ytFrVideo.height + "p";
+        String downloadIds = "";
+        boolean hideAudioDownloadNotification = false;
+        if (ytFrVideo.videoFile != null) {
+//            downloadIds += downloadFromUrl(ytFrVideo.videoFile.getUrl(), videoTitle,
+//                    filename + "." + ytFrVideo.videoFile.getFormat().getExt(), false);
+//            downloadIds += "-";
+//            hideAudioDownloadNotification = true;
+        }
+        if (ytFrVideo.audioFile != null) {
+//            downloadIds += downloadFromUrl(ytFrVideo.audioFile.getUrl(), videoTitle,
+//                    filename + "." + ytFrVideo.audioFile.getFormat().getExt(), hideAudioDownloadNotification);
+        }
 
 
 
@@ -262,12 +292,12 @@ public class YouTubeExtractor {
 //        if (formatSelected == false){
 //            System.out.println("Не верный формат. Выбирете нужный.");
 //        }
-
-
-
-
-
-
+//
+//
+//
+//
+//
+//
 //    List<Integer> itag = new ArrayList<>();
 //    JSONObject ytPlayerResponse = new JSONObject(mat.group(1));
 //    JSONObject streamingData = ytPlayerResponse.getJSONObject("streamingData");
@@ -281,9 +311,9 @@ public class YouTubeExtractor {
 //        if (format == FORMAT_MAP.get(i))
 //
 //    }
-
-
-
+//
+//
+//
 //    private void addButtonToMainLayout(final String videoTitle, final YtFragmentedVideo ytFrVideo){
 //        String btnText;
 //        if (ytFrVideo.height == -1)
@@ -312,7 +342,7 @@ public class YouTubeExtractor {
 //                    filename + "." + ytFrVideo.audioFile.getFormat().getExt(), hideAudioDownloadNotification);
 //        }
 //    }
-
+//
 //    private long downloadFromUrl(String youtubeDlUrl, String downloadTitle, String fileName, boolean hide) {
 //        Uri uri = Uri.parse(youtubeDlUrl);
 //        DownloadManager.Request request = new DownloadManager.Request(uri);
@@ -328,7 +358,7 @@ public class YouTubeExtractor {
 //        DownloadManager manager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
 //        return manager.enqueue(request);
 //    }
-
+//
     private static class YtFragmentedVideo {
         int height;
         YtFile audioFile;
