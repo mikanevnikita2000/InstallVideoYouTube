@@ -176,6 +176,7 @@ public class YouTubeExtractor {
                     continue;
 
                 int itag = format.getInt("itag");
+
                 System.out.println("itag: " + itag);
                 //System.out.println("FORMAT_MAP.get(itag): " + FORMAT_MAP.get(itag));
                 heightVideo.add(FORMAT_MAP.get(itag).getHeight());
@@ -192,13 +193,16 @@ public class YouTubeExtractor {
                             String url = URLDecoder.decode(mat.group(1), "UTF-8");
                             String signature = URLDecoder.decode(matSig.group(1), "UTF-8");
                             ytFiles.put(itag, new YtFile(FORMAT_MAP.get(itag), url));
+
                             //System.out.println("url ytFiles1" + ytFile.toString());
                             encSignatures.put(itag, signature);
                         }
 
+
                     }
                 }
             }
+
 
             JSONArray adaptiveFormats = streamingData.getJSONArray("adaptiveFormats");
             //System.out.println("adaptiveFormats: " + adaptiveFormats);
@@ -230,41 +234,15 @@ public class YouTubeExtractor {
                     }
                 }
                 System.out.println(adaptiveFormats);
+//                InfoVideo infoVideo = new InfoVideo();
+//                infoVideo.Formats(FORMAT_MAP.get(itag));
+//                infoVideo.toString();
             }
-            JSONObject videoDetails = ytPlayerResponse.getJSONObject("videoDetails");
-            addButtonToMainLayout(videoDetails.getString("title"), videoDetails);
 
         }
 
 
     }
-    private void addButtonToMainLayout(String videoTitle, YtFragmentedVideo ytFrVideo){
-        String btnText;
-        if (ytFrVideo.height == -1)
-            btnText = "Audio " + ytFrVideo.audioFile.getFormat().getAudioBitrate() + " kbit/s";
-        else
-            btnText = (ytFrVideo.videoFile.getFormat().getFps() == 60) ? ytFrVideo.height + "p60" :
-                    ytFrVideo.height + "p";
-        String filename;
-        if (videoTitle.length() > 55) {
-            filename = videoTitle.substring(0, 55);
-        } else {
-            filename = videoTitle;
-        }
-        filename = filename.replaceAll("[\\\\><\"|*?%:#/]", "");
-        filename += (ytFrVideo.height == -1) ? "" : "-" + ytFrVideo.height + "p";
-        String downloadIds = "";
-        boolean hideAudioDownloadNotification = false;
-        if (ytFrVideo.videoFile != null) {
-//            downloadIds += downloadFromUrl(ytFrVideo.videoFile.getUrl(), videoTitle,
-//                    filename + "." + ytFrVideo.videoFile.getFormat().getExt(), false);
-//            downloadIds += "-";
-//            hideAudioDownloadNotification = true;
-        }
-        if (ytFrVideo.audioFile != null) {
-//            downloadIds += downloadFromUrl(ytFrVideo.audioFile.getUrl(), videoTitle,
-//                    filename + "." + ytFrVideo.audioFile.getFormat().getExt(), hideAudioDownloadNotification);
-        }
 
 
 
