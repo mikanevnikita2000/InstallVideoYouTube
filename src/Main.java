@@ -26,38 +26,3 @@ public class Main {
         }
     }
 }
-
-//    String fileName = "src/photosAndVideos/dog.jpg";
-//
-//    FileOutputStream fout = null;
-//    BufferedInputStream in = null;
-//
-//        try {
-//                in = new BufferedInputStream(new URL(url).openStream());
-//                fout = new FileOutputStream(fileName);
-//                byte data[] = new byte[1024];
-//                int count;
-//                while ((count = in.read(data, 0, 1024)) != -1)
-//                {
-//                fout.write(data, 0, count);
-//                fout.flush();
-//                }
-//                } catch (MalformedURLException e) {
-//                e.printStackTrace();
-//                } catch (IOException e) {
-//                e.printStackTrace();
-//                } finally {
-//                {
-//                try {
-//                in.close();
-//                } catch (IOException e) {
-//                throw new RuntimeException(e);
-//                } finally {
-//                try {
-//                fout.close();
-//                } catch (IOException e) {
-//                throw new RuntimeException(e);
-//                }
-//                }
-//                }
-//                }

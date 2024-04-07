@@ -141,7 +141,7 @@ public class YouTubeExtractor {
                 case 144:
                 endUrl = formatUrl.get(144);
         }
-        Dounl(endUrl);
+        Download(endUrl);
         System.out.println("endUrl: " + endUrl);
     }
 
@@ -202,7 +202,7 @@ public class YouTubeExtractor {
     }
 
 
-    public void Dounl(String endUrl){
+    public void Download(String endUrl){
         URL url = null;
         try {
             url = URI.create(endUrl).toURL();
